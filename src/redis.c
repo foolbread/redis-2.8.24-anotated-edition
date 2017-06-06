@@ -1308,12 +1308,12 @@ void createSharedObjects(void) {
 
 void initServerConfig(void) {
     int j;
-    //--ÀûÓÃ/dev/urandomÉè±¸ÎÄ¼şÀ´²úÉúredisµÄrunid£¬Èç¹ûÉè±¸ÎÄ¼ş´ò¿ª
-    //--Ê§°Ü£¬¾ÍÓÃ½ø³ÌºÅºÍÊ±¼äÀ´²úÉúrunid¡£runid³¤¶ÈÎª40
+    //--åˆ©ç”¨/dev/urandomè®¾å¤‡æ–‡ä»¶æ¥äº§ç”Ÿredisçš„runidï¼Œå¦‚æœè®¾å¤‡æ–‡ä»¶æ‰“å¼€
+    //--å¤±è´¥ï¼Œå°±ç”¨è¿›ç¨‹å·å’Œæ—¶é—´æ¥äº§ç”Ÿrunidã€‚runidé•¿åº¦ä¸º40
     getRandomHexChars(server.runid,REDIS_RUN_ID_SIZE);
     server.configfile = NULL;
     server.hz = REDIS_DEFAULT_HZ;
-    server.runid[REDIS_RUN_ID_SIZE] = '\0'; //--ÉÏÃæÒÑ¾­Éú³ÉÁËrunid£¬¸ø×îºóµÄ×Ö½ÚÌî³äÉÏ½áÊø·û
+    server.runid[REDIS_RUN_ID_SIZE] = '\0'; //--ä¸Šé¢å·²ç»ç”Ÿæˆäº†runidï¼Œç»™æœ€åçš„å­—èŠ‚å¡«å……ä¸Šç»“æŸç¬¦
     server.arch_bits = (sizeof(long) == 8) ? 64 : 32;
     server.port = REDIS_SERVERPORT;
     server.tcp_backlog = REDIS_TCP_BACKLOG;
@@ -1539,8 +1539,8 @@ void adjustOpenFilesLimit(void) {
 /* Check that server.tcp_backlog can be actually enforced in Linux according
  * to the value of /proc/sys/net/core/somaxconn, or warn about it. */
 void checkTcpBacklogSettings(void) {
-//--¼ì²éÏµÍ³µÄ¶Ë¿Ú¼àÌı¶ÓÁĞ³¤¶È
-//--²Î¿¼×ÊÁÏhttp://blog.csdn.net/taolinke/article/details/6800979
+//--æ£€æŸ¥ç³»ç»Ÿçš„ç«¯å£ç›‘å¬é˜Ÿåˆ—é•¿åº¦
+//--å‚è€ƒèµ„æ–™http://blog.csdn.net/taolinke/article/details/6800979
 #ifdef HAVE_PROC_SOMAXCONN
     FILE *fp = fopen("/proc/sys/net/core/somaxconn","r");
     char buf[1024];
@@ -1673,9 +1673,9 @@ void initServer(void) {
     server.ready_keys = listCreate();
 
     createSharedObjects();
-	//--Ñ¡ÔñºÏÊÊµÄÎÄ¼ş¾ä±ú´ò¿ªÊı£¬ÖÁÉÙÔ¤Áô32¸ö¾ä±ú
+    //--é€‰æ‹©åˆé€‚çš„æ–‡ä»¶å¥æŸ„æ‰“å¼€æ•°ï¼Œè‡³å°‘é¢„ç•™32ä¸ªå¥æŸ„
     adjustOpenFilesLimit();
-	//--ÓÅÏÈÑ¡Ôñevport->epoll->kqueue->select
+    //--ä¼˜å…ˆé€‰æ‹©evport->epoll->kqueue->select
     server.el = aeCreateEventLoop(server.maxclients+REDIS_EVENTLOOP_FDSET_INCR);
     server.db = zmalloc(sizeof(redisDb)*server.dbnum);
 
@@ -1740,17 +1740,17 @@ void initServer(void) {
 
     /* Create the serverCron() time event, that's our main way to process
      * background operations. */
-    //--serverCron µÄÒ»Ğ©Ö´ĞĞÈÎÎñ--//
-    //--1.¸üĞÂÁËÏÂcacheµÄÊ±¼ä
-    //--2.¸üĞÂLRUËøµÄÖµ
-    //--3.¼ÇÂ¼ÄÚ´æÊ¹ÓÃ×î¸ßÖµ
-    //--4.´òÓ¡Ò»Ğ©Êı¾İ¿âµÄĞÅÏ¢
-    //--5.´òÓ¡Á¬½ÓµÄ¿Í»§¶ËĞÅÏ¢
-    //--6.¶Ô¿Í»§¶ËÒ»Ğ©×´Ì¬½øĞĞ¼ì²â
-    //--7.¶ÔÊı¾İ¿âÒ»Ğ©×´Ì¬½øĞĞ¼ì²â
-    //--8.Î¬»¤RDBÎÄ¼şºÍAOFÎÄ¼ş
-    //--9.°´Ò»¶¨Ìõ¼şÉ¾³ıÒ»Ğ©¿Í»§¶Ë
-    //--10.Ö÷±¸Êı¾İÍ¬²½
+    //--serverCron çš„ä¸€äº›æ‰§è¡Œä»»åŠ¡--//
+    //--1.æ›´æ–°äº†ä¸‹cacheçš„æ—¶é—´
+    //--2.æ›´æ–°LRUé”çš„å€¼
+    //--3.è®°å½•å†…å­˜ä½¿ç”¨æœ€é«˜å€¼
+    //--4.æ‰“å°ä¸€äº›æ•°æ®åº“çš„ä¿¡æ¯
+    //--5.æ‰“å°è¿æ¥çš„å®¢æˆ·ç«¯ä¿¡æ¯
+    //--6.å¯¹å®¢æˆ·ç«¯ä¸€äº›çŠ¶æ€è¿›è¡Œæ£€æµ‹
+    //--7.å¯¹æ•°æ®åº“ä¸€äº›çŠ¶æ€è¿›è¡Œæ£€æµ‹
+    //--8.ç»´æŠ¤RDBæ–‡ä»¶å’ŒAOFæ–‡ä»¶
+    //--9.æŒ‰ä¸€å®šæ¡ä»¶åˆ é™¤ä¸€äº›å®¢æˆ·ç«¯
+    //--10.ä¸»å¤‡æ•°æ®åŒæ­¥
     if(aeCreateTimeEvent(server.el, 1, serverCron, NULL, NULL) == AE_ERR) {
         redisPanic("Can't create the serverCron time event.");
         exit(1);
@@ -1758,7 +1758,7 @@ void initServer(void) {
 
     /* Create an event handler for accepting new connections in TCP and Unix
      * domain sockets. */
-    //--°ó¶¨¶ÁÊÂ¼şº¯Êı
+    //--ç»‘å®šè¯»äº‹ä»¶å‡½æ•°
     for (j = 0; j < server.ipfd_count; j++) {
         if (aeCreateFileEvent(server.el, server.ipfd[j], AE_READABLE,
             acceptTcpHandler,NULL) == AE_ERR)
@@ -1767,7 +1767,7 @@ void initServer(void) {
                     "Unrecoverable error creating server.ipfd file event.");
             }
     }
-	//--°ó¶¨¶ÁÊÂ¼şº¯Êı
+    //--ç»‘å®šè¯»äº‹ä»¶å‡½æ•°
     if (server.sofd > 0 && aeCreateFileEvent(server.el,server.sofd,AE_READABLE,
         acceptUnixHandler,NULL) == AE_ERR) redisPanic("Unrecoverable error creating server.sofd file event.");
 
@@ -1796,7 +1796,7 @@ void initServer(void) {
     scriptingInit();
     slowlogInit();
     latencyMonitorInit();
-	//--ÕâÀïÆğÁË2¸öbioÏß³Ì£¬Ò»¸ö¹Ø±ÕÎÄ¼ş£¬Ò»¸öÍ¬²½aofÎÄ¼ş
+    //--è¿™é‡Œèµ·äº†2ä¸ªbioçº¿ç¨‹ï¼Œä¸€ä¸ªå…³é—­æ–‡ä»¶ï¼Œä¸€ä¸ªåŒæ­¥aofæ–‡ä»¶
     bioInit();
 }
 
@@ -3104,11 +3104,11 @@ int linuxOvercommitMemoryValue(void) {
 }
 
 void linuxMemoryWarnings(void) {
-	//--¼ì²é²Ù×÷ÏµÍ³¶ÔÄÚ´æÉêÇëµÄ²ßÂÔ£¬
-	//--0 ÉêÇëµÄĞéÄâÄÚ´æ´óĞ¡´óÓÚÏÖÓĞµÄÎïÀíÄÚ´æÊ±£¬·µ»ØÊ§°Ü
-	//--1 ºöÊÓÏÖÓĞµÄÎïÀíÄÚ´æ£¬Á¢¼´·ÖÅäĞéÄâÄÚ´æ£¬µ±´¥·¢È±Ò³¶øÎïÀíÄÚ´æ²»×ãÊ±¿ÉÄÜ»á±»oom½ø³ÌÉ±ËÀ
-	//--2 Ã¿´ÎÉêÇë¶¼¸ù¾İÏÖÓĞµÄÎïÀíÄÚ´æ¼ÆËã³öÒ»¸öãĞÖµ£¬È»ºó¸úÕâ¸öãĞÖµ×ö±È½ÏÀ´ÅĞ¶ÏÊÇ·ñÔÊĞí±¾´ÎÉêÇë
-	//--²Î¿¼×ÊÁÏhttp://blog.chinaunix.net/uid-20671208-id-4440244.html
+	//--æ£€æŸ¥æ“ä½œç³»ç»Ÿå¯¹å†…å­˜ç”³è¯·çš„ç­–ç•¥ï¼Œ
+    //--0 ç”³è¯·çš„è™šæ‹Ÿå†…å­˜å¤§å°å¤§äºç°æœ‰çš„ç‰©ç†å†…å­˜æ—¶ï¼Œè¿”å›å¤±è´¥
+    //--1 å¿½è§†ç°æœ‰çš„ç‰©ç†å†…å­˜ï¼Œç«‹å³åˆ†é…è™šæ‹Ÿå†…å­˜ï¼Œå½“è§¦å‘ç¼ºé¡µè€Œç‰©ç†å†…å­˜ä¸è¶³æ—¶å¯èƒ½ä¼šè¢«oomè¿›ç¨‹æ€æ­»
+    //--2 æ¯æ¬¡ç”³è¯·éƒ½æ ¹æ®ç°æœ‰çš„ç‰©ç†å†…å­˜è®¡ç®—å‡ºä¸€ä¸ªé˜ˆå€¼ï¼Œç„¶åè·Ÿè¿™ä¸ªé˜ˆå€¼åšæ¯”è¾ƒæ¥åˆ¤æ–­æ˜¯å¦å…è®¸æœ¬æ¬¡ç”³è¯·
+    //--å‚è€ƒèµ„æ–™http://blog.chinaunix.net/uid-20671208-id-4440244.html
     if (linuxOvercommitMemoryValue() == 0) {
         redisLog(REDIS_WARNING,"WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.");
     }
@@ -3308,19 +3308,19 @@ int main(int argc, char **argv) {
 
     /* We need to initialize our libraries, and the server configuration. */
 #ifdef INIT_SETPROCTITLE_REPLACEMENT
-    //--´òÉ¢argvºÍenvironËù´æ´¢ÄÚÈİµÄ¿Õ¼ä
+    //--æ‰“æ•£argvå’Œenvironæ‰€å­˜å‚¨å†…å®¹çš„ç©ºé—´
     spt_init(argc, argv);
 #endif
-    //--ÉèÖÃÏÂ×Ö·û´®±È½Ï²ÉÓÃ±¾µØµÄ»·¾³
+    //--è®¾ç½®ä¸‹å­—ç¬¦ä¸²æ¯”è¾ƒé‡‡ç”¨æœ¬åœ°çš„ç¯å¢ƒ
     setlocale(LC_COLLATE,"");
     zmalloc_enable_thread_safeness();
     zmalloc_set_oom_handler(redisOutOfMemoryHandler);
     srand(time(NULL)^getpid());
     gettimeofday(&tv,NULL);
     dictSetHashFunctionSeed(tv.tv_sec^tv.tv_usec^getpid());
-    //--¼ì²âÏÂ¸ÄÆô¶¯µÄredis½ÚµãÊÇ²»ÊÇÉÚ±ø½Úµã
+    //--æ£€æµ‹ä¸‹æ”¹å¯åŠ¨çš„redisèŠ‚ç‚¹æ˜¯ä¸æ˜¯å“¨å…µèŠ‚ç‚¹
     server.sentinel_mode = checkForSentinelMode(argc,argv);
-    //--Ö÷ÒªÔÚ³õÊ¼»¯È«¾ÖµÄserver¶ÔÏóÖĞµÄ¸÷¸öÊı¾İ³ÉÔ±
+    //--ä¸»è¦åœ¨åˆå§‹åŒ–å…¨å±€çš„serverå¯¹è±¡ä¸­çš„å„ä¸ªæ•°æ®æˆå‘˜
     initServerConfig();
 
     /* We need to init sentinel right now as parsing the configuration file
@@ -3387,13 +3387,13 @@ int main(int argc, char **argv) {
         redisLog(REDIS_WARNING, "Warning: no config file specified, using the default config. In order to specify a config file use %s /path/to/%s.conf", argv[0], server.sentinel_mode ? "sentinel" : "redis");
     }
     if (server.daemonize) daemonize();
-	//--¼ÌĞø³õÊ¼»¯È«¾ÖµÄserver¶ÔÏó£¬²¢ÔÚÀïÃæ³õÊ¼»¯ÁËÈ«¾ÖµÄshared¶ÔÏó
-	//--¼àÌı¶Ë¿ÚºÍuinx socketÎÄ¼ş
-	//--Æô¶¯bioÏß³Ì
-	//--lua»·¾³
+	//--ç»§ç»­åˆå§‹åŒ–å…¨å±€çš„serverå¯¹è±¡ï¼Œå¹¶åœ¨é‡Œé¢åˆå§‹åŒ–äº†å…¨å±€çš„sharedå¯¹è±¡
+    //--ç›‘å¬ç«¯å£å’Œuinx socketæ–‡ä»¶
+    //--å¯åŠ¨bioçº¿ç¨‹
+    //--luaç¯å¢ƒ
     initServer();
     if (server.daemonize) createPidFile();
-	//--¸øredis½ø³Ì¸ÄÃû×Ö
+    //--ç»™redisè¿›ç¨‹æ”¹åå­—
     redisSetProcTitle(argv[0]);
     redisAsciiArt();
 
@@ -3401,12 +3401,12 @@ int main(int argc, char **argv) {
         /* Things not needed when running in Sentinel mode. */
         redisLog(REDIS_WARNING,"Server started, Redis version " REDIS_VERSION);
     #ifdef __linux__
-	//--¼ì²éÏµÍ³µÄTHPºÍovercommit_memory
+    //--æ£€æŸ¥ç³»ç»Ÿçš„THPå’Œovercommit_memory
         linuxMemoryWarnings();
     #endif
-	//--¼ì²étcp_backlogºÍÏµÍ³µÄsomaxconn²ÎÊıÖµ
+    //--æ£€æŸ¥tcp_backlogå’Œç³»ç»Ÿçš„somaxconnå‚æ•°å€¼
         checkTcpBacklogSettings();
-	//--¸ù¾İRDB»òÕßAOFÎÄ¼ş¼ÓÔØ¾ÉÊı¾İ£¬ÓÅÏÈAOFÎÄ¼ş
+    //--æ ¹æ®RDBæˆ–è€…AOFæ–‡ä»¶åŠ è½½æ—§æ•°æ®ï¼Œä¼˜å…ˆAOFæ–‡ä»¶
         loadDataFromDisk();
         if (server.ipfd_count > 0)
             redisLog(REDIS_NOTICE,"The server is now ready to accept connections on port %d", server.port);
